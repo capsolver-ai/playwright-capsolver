@@ -1,5 +1,5 @@
 # Examples
 
-Examples must be runnable and safe to share. Copy .env.example to .env, provide your own keys, and use only pages and accounts you are authorized to automate.
+`quickstart.py` prints CapSolver Agent's browser-tool schemas and runs `detect_captchas` for `TARGET_URL`. Solving is opt-in through `CAPSOLVER_RUN_SOLVE=true` to avoid accidental paid calls.
 
-Released adapters should provide minimal setup, token mode, browser recovery where applicable, and structured error handling.
+The browser implementation comes from the shared SDK's Playwright extra; this repository does not publish another Playwright package.

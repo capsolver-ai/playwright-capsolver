@@ -1,131 +1,69 @@
-<div align="center">
+# Playwright + CapSolver Agent examples
 
-# playwright-capsolver
-
-**Official CapSolver integration for Playwright — detect, solve, and fill CAPTCHAs in existing browser sessions.**
-
-[![Status](https://img.shields.io/badge/status-release--candidate-blue)](#project-status)
+[![Demo repository](https://img.shields.io/badge/type-runnable%20demo-0A7BBB)](#repository-scope)
 [![CI](https://github.com/capsolver-ai/playwright-capsolver/actions/workflows/ci.yml/badge.svg)](https://github.com/capsolver-ai/playwright-capsolver/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-ISC-green.svg)](LICENSE)
-[![Docs](https://img.shields.io/badge/docs-CapSolver-7c3aed)](https://docs.capsolver.com/en/guide/ai/capsolver-for-ai-agents/)
-[![Responsible use](https://img.shields.io/badge/use-authorized%20automation-0a7)](#responsible-use)
+[![License: ISC](https://img.shields.io/badge/license-ISC-green.svg)](LICENSE)
 
-[Quick start](#quick-start) · [Architecture](#architecture) · [Examples](#examples) · [Documentation](#documentation) · [Contributing](#contributing)
+Runnable examples for CapSolver Agent's Playwright-backed `detect_captchas` and `solve_on_page` tools.
 
-</div>
+> Examples only: this repository does not publish `playwright-capsolver` or duplicate the browser engine.
 
-## Why this integration exists
+## Repository scope
 
-Agents can navigate, click, and type, but verification challenges can interrupt a successful workflow. This repository adds CapSolver as a recovery layer for Playwright. Your application keeps its browser session, orchestration, model, and business logic while CapSolver handles supported challenges and returns control to the original task.
-
-Initial adapter code, tests, CI, and release automation are included.
-
-## Highlights
-
-- Native Playwright integration rather than a generic copy-and-paste snippet.
-- Shared maintained engine through capsolver-core; solving logic is not duplicated.
-- Async-friendly execution for browser and agent workloads.
-- Structured results for tracing, bounded retries, and debugging.
-- Token mode and browser recovery where supported.
-- Designed for lawful, user-authorized, terms-compliant automation.
-
-## Project status
-
-| Item | Value |
-|---|---|
-| Lifecycle | publish-now |
-| Ecosystem | Playwright |
-| Language | Python |
-| Shared runtime | capsolver-core |
-| Maintainer | [capsolver-ai](https://github.com/capsolver-ai) |
-| Coverage | reCAPTCHA v2/v3 and Cloudflare Turnstile, subject to shared runtime |
-
-## Installation
-
-~~~bash
-pip install playwright-capsolver
-export CAPSOLVER_API_KEY="CAP-..."
-~~~
-
-Never commit an API key. Browser-backed Python projects may also need: playwright install chromium.
+The shared [`capsolver-agent`](https://github.com/capsolver-ai/capsolver-agent) tool executor delegates browser work to `capsolver-core`. This repository demonstrates those public tools and keeps solving opt-in.
 
 ## Quick start
 
-~~~python
-# Representative API. Scaffolds finalize this during their release gate.
-integration = await solve_page(page)
-~~~
+```bash
+git clone https://github.com/capsolver-ai/playwright-capsolver.git
+cd playwright-capsolver
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+playwright install chromium
+```
 
-See [examples](examples/) for full flows. Use only pages and accounts you own or are explicitly authorized to automate.
+Export [`.env.example`](.env.example) values and run `python examples/quickstart.py`.
 
-## Architecture
+By default the demo only detects. Set `CAPSOLVER_RUN_SOLVE=true` only when `TARGET_URL` is a lawful, authorized test page and you intend to make a paid solving request.
 
-~~~mermaid
-flowchart LR
-    A["Playwright application"] -->|"verification detected"| B["playwright-capsolver"]
-    B -->|"structured call"| C["capsolver-core"]
-    C -->|"solve request"| D["CapSolver API"]
-    D -->|"token and traceable result"| C
-    C -->|"fill or return"| B
-    B -->|"resume task"| A
-~~~
+## Key integration code
 
-This repository owns framework conversion, examples, compatibility tests, and release cadence. Canonical detection, solving, fill-back, retries, and errors remain in shared CapSolver packages.
+```python
+from capsolver_agent import create_executor
 
-## Capabilities
+executor = create_executor()
+detection = await executor.execute("detect_captchas", {"page_url": target_url})
+result = await executor.execute("solve_on_page", {
+    "page_url": target_url,
+    "autofill": True,
+})
+```
 
-| Capability | Purpose | Browser |
-|---|---|---:|
-| solve_captcha | Solve from known type, URL, and site key | No |
-| detect_captchas | Detect supported challenges | Yes |
-| solve_on_page | Detect, solve, and fill | Yes |
-| get_balance | Read account balance | No |
-| get_supported_captchas | Inspect registered handlers | No |
+See [`examples/quickstart.py`](examples/quickstart.py) for the guarded flow.
 
-## Examples
+## Project layout
 
-Released adapters should contain minimal registration, token mode, browser recovery where applicable, structured error handling, mocked tests, and an opt-in authorized live test.
-
-## Configuration
-
-| Variable | Required | Description |
-|---|---:|---|
-| CAPSOLVER_API_KEY | Yes | CapSolver API key |
-| OPENAI_API_KEY | Example-dependent | Only for examples using OpenAI models |
-
-Never log keys, cookies, proxy passwords, solved tokens, personal information, or private URLs.
-
-## Error handling
-
-Retry only transient network, timeout, and rate-limit failures with bounded backoff. Do not retry invalid parameters indefinitely. Retain request identifiers for diagnosis and redact sensitive fields from exported logs. See [troubleshooting](docs/troubleshooting.md).
-
-## Compatibility and releases
-
-- Semantic Versioning after the first stable release.
-- CI tests supported runtime versions.
-- Dependabot tracks framework and Actions updates.
-- Tags publish through trusted publishing where available.
-- Pre-1.0 upstream breaking changes may require minor releases.
-
-## Responsible use
-
-You must obtain authorization, follow applicable law and target-site terms, apply reasonable rate limits, and protect account data. Do not use this project for unauthorized access, abusive automation, or evasion of protections around private accounts or data.
+```text
+examples/quickstart.py   Browser schema, detection, and opt-in solving demo
+requirements.txt         CapSolver browser extras plus Playwright
+tests/test_demo.py        Offline validation
+.github/workflows/ci.yml  Demo checks
+```
 
 ## Documentation
 
-- [CapSolver for AI Agents](https://docs.capsolver.com/en/guide/ai/capsolver-for-ai-agents/)
-- [Quick Start](https://docs.capsolver.com/en/guide/ai/introduction-and-quick-start/)
-- [Core SDK](https://docs.capsolver.com/en/guide/ai/core-sdk/)
-- [Agent Tools](https://docs.capsolver.com/en/guide/ai/agent-tools/)
-- [MCP Service](https://docs.capsolver.com/en/guide/ai/mcp-service/)
-- [Architecture](docs/architecture.md)
-- [Security](SECURITY.md)
-- [Support](SUPPORT.md)
+- [CapSolver Agent tools](https://docs.capsolver.com/en/guide/ai/agent-tools/)
+- [CapSolver Core SDK](https://docs.capsolver.com/en/guide/ai/core-sdk/)
+- [CapSolver quick start](https://docs.capsolver.com/en/guide/ai/introduction-and-quick-start/)
+- [Playwright Python documentation](https://playwright.dev/python/docs/intro)
 
-## Contributing
+## Responsible use
 
-Read [CONTRIBUTING](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md). Issues and pull requests must use redacted fixtures and never contain credentials or private target data.
+Use browser solving only for lawful, user-authorized workflows that respect target-site terms. Never commit secrets or private target data.
 
-## License
+## Contributing, support, and license
 
-[ISC](LICENSE)
+See [CONTRIBUTING.md](CONTRIBUTING.md), [SUPPORT.md](SUPPORT.md), and [SECURITY.md](SECURITY.md). Licensed under the [ISC License](LICENSE).
+
+Playwright is a third-party project. This repository is maintained by CapSolver and is not affiliated with or endorsed by Microsoft.

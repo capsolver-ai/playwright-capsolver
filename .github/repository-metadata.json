@@ -1,20 +1,9 @@
 {
   "name": "playwright-capsolver",
   "owner": "capsolver-ai",
-  "description": "Official CapSolver integration for Playwright \u2014 detect, solve, and fill CAPTCHAs in existing browser sessions.",
-  "homepage": "https://docs.capsolver.com/en/guide/ai/capsolver-for-ai-agents/",
-  "topics": [
-    "capsolver",
-    "playwright",
-    "browser-automation",
-    "captcha",
-    "python",
-    "web-testing",
-    "e2e-testing",
-    "rpa",
-    "asyncio",
-    "automation"
-  ],
-  "visibility": "public",
-  "status": "publish-now"
+  "description": "Runnable Playwright browser-tool examples using the CapSolver Agent library.",
+  "homepage": "https://docs.capsolver.com/en/guide/ai/agent-tools/",
+  "topics": ["capsolver", "playwright", "browser-automation", "agent-tools", "captcha", "examples", "python", "testing", "rpa", "web-automation"],
+  "visibility": "private",
+  "status": "demo"
 }
